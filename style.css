@@ -99,3 +99,50 @@ button {
 .auth-box {
     width: min(410px, 100%);
 }
+
+h1, h2, h3, p {
+    margin-top: 0;
+}
+
+h1 {
+    font-size: 29px;
+    letter-spacing: -.7px;
+    margin-bottom: 4px;
+}
+
+h2 {
+    font-size: 16px;
+    margin: 0;
+}
+
+h3 {
+    font-size: 14px;
+}
+
+.sub, .muted {
+    color: var(--muted);
+}
+
+.sub {
+    margin: 0 0 25px;
+}
+
+.field {
+    width: 100%;
+    border: 1px solid #d8e1db;
+    border-radius: 9px;
+    padding: 10px 12px;
+    background: white;
+    color: var(--ink);
+    outline: 0;
+}
+
+.field:focus {
+    border-color: #5b987e;
+    box-shadow: 0 0 0 3px #5b987e1c;
+}
+
+textarea.field {
+    min-height: 100px;
+    resize: vertical;
+}
