@@ -587,3 +587,69 @@ textarea.field {
 .search input {
     padding-left: 31px;
 }
+
+.assistant {
+    display: grid;
+    grid-template-columns: 1.5fr .8fr;
+    gap: 16px;
+}
+
+.chatbox {
+    display: flex;
+    flex-direction: column;
+    height: min(590px, calc(100vh - 230px));
+    min-height: 390px;
+}
+
+.messages {
+    flex: 1;
+    overflow: auto;
+    padding: 4px 2px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.bubble {
+    max-width: 84%;
+    padding: 11px 13px;
+    border-radius: 11px;
+    background: #f0f4f0;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.bubble.user {
+    align-self: flex-end;
+    background: #e5f0e8;
+}
+
+.stamp {
+    font-size: 10px;
+    color: #83918a;
+    margin-top: 4px;
+}
+
+.compose {
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.compose input {
+    flex: 1;
+}
+
+.proposal {
+    background: #fff9e9;
+    border: 1px solid #f1dfb9;
+    padding: 13px;
+    border-radius: 9px;
+    margin-top: 10px;
+}
+
+.proposal strong {
+    display: block;
+    margin-bottom: 5px;
+}
