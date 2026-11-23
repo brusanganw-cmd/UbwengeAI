@@ -450,3 +450,26 @@ function activity() {
         </div>`).join('') : empty('No activity recorded')}
     </section>`;
 }
+
+function team() {
+    let a = db.users.filter(u => u.space === me.space);
+    return `${head('Team & settings', 'Manage access and save a backup.')}
+    <div class="settings">
+        <section class="card">
+            <div class="card-head"><h2>Team members</h2><span class="badge green">${a.length}</span></div>
+            ${a.map(u => `<div class="row">
+                <div><b>${esc(u.name)}${u.id === me.id ? ' (you)' : ''}</b><div class="row-sub">${esc(u.email)}</div></div>
+                <div class="row-actions"><span class="badge blue">${esc(u.role)}</span>${u.id !== me.id ? `<button class="btn ghost small" data-role="${u.id}">Change role</button>` : ''}</div>
+            </div>`).join('')}
+            <hr>
+            <button class="btn secondary" data-modal="member">＋ Add team member</button>
+            <p class="footnote">The temporary password is shown once after creation. Share it securely.</p>
+        </section>
+        <section class="card">
+            <h2>Workspace backup</h2>
+            <p class="muted">Download the workspace records, task data, approvals and activity log as JSON.</p>
+            <button class="btn secondary" id="backup">Download backup</button>
+            <p class="footnote">Data stays in this browser and does not sync across devices.</p>
+        </section>
+    </div>`;
+}
