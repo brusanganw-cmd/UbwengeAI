@@ -355,3 +355,41 @@ function schedule() {
         </div>`).join('') : empty('Your calendar is clear', 'Add a meeting or activity.')}
     </section>`;
 }
+
+function render() {
+    let m = $('#main');
+    ({ 
+        home: () => m.innerHTML = home(),
+        tasks: () => m.innerHTML = tasks(),
+        schedule: () => m.innerHTML = schedule(),
+        records: () => m.innerHTML = records(),
+        assistant: () => m.innerHTML = assistant(),
+        review: () => m.innerHTML = review(),
+        activity: () => m.innerHTML = activity(),
+        team: () => m.innerHTML = team()
+    })[page]?.();
+    bind();
+}
+
+function records() {
+    let a = list('docs').sort((x, y) => y.updated.localeCompare(x.updated)),
+        query = q.toLowerCase();
+    if (query) a = a.filter(x => (x.title + x.content + x.type).toLowerCase().includes(query));
+    return `${head('Business records', 'Save useful information and export reports.', '<button class="btn secondary" id="csv">Export task report</button><button class="btn" data-modal="doc">＋ New record</button>')}
+    <div class="toolbar">
+        <div class="search">
+            <input class="field" id="search" placeholder="Search records" value="${esc(q)}">
+        </div>
+    </div>
+    ${a.length ? `<div class="docgrid">${a.map(d => `<article class="doc">
+        <div class="card-head"><span class="badge blue">${esc(d.type)}</span><button class="btn ghost small" data-edit-doc="${d.id}">Edit</button></div>
+        <h3>${esc(d.title)}</h3>
+        <p>${esc(d.content)}</p>
+        <div class="small">Updated ${stamp(d.updated)}</div>
+        <div class="row-actions" style="margin-top:10px">
+            <button class="btn secondary small" data-download-doc="${d.id}">Download .txt</button>
+            <button class="btn danger small" data-delete-doc="${d.id}">Delete</button>
+        </div>
+    </article>`).join('')}</div>` : `<div class="card">${empty('No records saved', 'Create notes, reports or procedures here.')}</div>`}
+    <p class="footnote">Task data exports as CSV. Saved records download as text files.</p>`;
+}
