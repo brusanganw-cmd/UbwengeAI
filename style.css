@@ -256,3 +256,42 @@ textarea.field {
     align-items: center;
     font-size: 13px;
 }
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--pale);
+    color: #285b49;
+    font-weight: 750;
+}
+
+.top-link {
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 66px);
+}
+
+.sidebar {
+    padding: 22px 13px;
+    border-right: 1px solid var(--line);
+    background: #fbfcfa;
+}
+
+.nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9aa8a1;
+    font-weight: 750;
+    padding: 5px 12px;
+}
