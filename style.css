@@ -295,3 +295,30 @@ textarea.field {
     font-weight: 750;
     padding: 5px 12px;
 }
+
+.nav {
+    width: 100%;
+    border: 0;
+    background: none;
+    color: #5c7067;
+    text-align: left;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 2px 0;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.nav:hover {
+    background: #f0f4f0;
+}
+
+.nav.active {
+    background: var(--pale);
+    color: #1d654c;
+}
+
+.nav span {
+    display: inline-block;
+    width: 25px;
+}
