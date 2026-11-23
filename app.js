@@ -337,3 +337,21 @@ function tasks() {
         </table>
     </div>`;
 }
+
+function schedule() {
+    let a = list('events').sort((x, y) => x.when.localeCompare(y.when));
+    return `${head('Schedule', 'Keep meetings and business activities together.', '<button class="btn" data-modal="event">＋ Add event</button>')}
+    <section class="card">
+        ${a.length ? a.map(e => `<div class="row">
+            <div class="event-date"><b>${new Date(e.when).getDate()}</b><span>${new Date(e.when).toLocaleDateString(undefined, { month: 'short' })}</span></div>
+            <div class="row-main">
+                <div class="row-title">${esc(e.title)}</div>
+                <div class="row-sub">${stamp(e.when)}${e.place ? ' · ' + esc(e.place) : ''}${e.desc ? ' · ' + esc(e.desc) : ''}</div>
+            </div>
+            <div class="row-actions">
+                <button class="btn ghost small" data-edit-event="${e.id}">Edit</button>
+                <button class="btn danger small" data-delete-event="${e.id}">Delete</button>
+            </div>
+        </div>`).join('') : empty('Your calendar is clear', 'Add a meeting or activity.')}
+    </section>`;
+}
