@@ -765,3 +765,15 @@ function download(name, data, type = 'text/plain') {
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
+
+function csv(rows) {
+    return rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+}
+
+function exportCsv() {
+    let rows = [['Task', 'Description', 'Assignee', 'Status', 'Due date', 'Reminder'], ...list('tasks').map(t => [t.title, t.desc, uname(t.assignee), t.status, t.due, t.remind])];
+    download('ubwengeai-task-report.csv', csv(rows), 'text/csv');
+    log('Exported task report');
+    save();
+    toast('CSV report downloaded');
+}
