@@ -717,3 +717,60 @@ textarea.field {
     justify-content: flex-end;
     margin-top: 18px;
 }
+
+.close {
+    border: 0;
+    background: #f0f4f0;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 17px;
+    color: #587166;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #193f35;
+    color: white;
+    padding: 11px 15px;
+    border-radius: 9px;
+    z-index: 20;
+    box-shadow: var(--shadow);
+}
+
+.toast.error {
+    background: #943f37;
+}
+
+.settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.footnote {
+    font-size: 11px;
+    color: #87948c;
+    margin-top: 10px;
+}
+
+.checks {
+    appearance: none;
+    width: 17px;
+    height: 17px;
+    border: 1px solid #aabbb0;
+    border-radius: 5px;
+    vertical-align: middle;
+}
+
+.checks:checked {
+    background: #277256;
+    border-color: #277256;
+}
+
+.done {
+    text-decoration: line-through;
+    color: #98a49d;
+}
