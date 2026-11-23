@@ -65,3 +65,31 @@ function manager() {
 function uname(x) {
     return db.users.find(u => u.id === x)?.name || '—';
 }
+
+function log(action, detail = '') {
+    db.logs.unshift({
+        id: id(),
+        space: me.space,
+        who: me.name,
+        action,
+        detail,
+        at: now()
+    });
+    save();
+}
+
+function toast(t, bad = false) {
+    $('#toast').innerHTML = `<div class="toast ${bad ? 'error' : ''}">${esc(t)}</div>`;
+    setTimeout(() => $('#toast').innerHTML = '', 3000);
+}
+
+async function hash(p, s) {
+    let a = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s + p));
+    return [...new Uint8Array(a)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+function start() {
+    me = db.users.find(x => x.id === localStorage.getItem(session)) || null;
+    if (me) app();
+    else auth();
+}
