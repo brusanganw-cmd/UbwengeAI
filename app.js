@@ -560,3 +560,60 @@ function modal(type, key = '') {
     $('#bg').onclick = e => { if (e.target.id === 'bg') $('#modal').innerHTML = ''; };
     $('#form').onsubmit = e => saveForm(e, type, item);
 }
+
+async function saveForm(e, type, item) {
+    e.preventDefault();
+    let f = Object.fromEntries(new FormData(e.target));
+
+    if (type === 'member') {
+        if (!manager()) return $('#err').textContent = 'Only an owner or administrator can add teammates.';
+        let email = f.email.trim().toLowerCase();
+        if (db.users.some(u => u.email === email)) return $('#err').textContent = 'That email already has an account.';
+        let pw = 'Uw!' + Math.random().toString(36).slice(2, 9) + '9',
+            salt = id(),
+            u = {
+                id: id(),
+                space: me.space,
+                name: f.name.trim(),
+                email,
+                role: f.role,
+                salt,
+                pass: await hash(pw, salt)
+            };
+        db.users.push(u);
+        save();
+        log('Added team member', u.name);
+        $('#modal').innerHTML = `<div class="modal-bg">
+            <div class="modal-box">
+                <h2>Member created</h2>
+                <p>${esc(u.name)} can sign in as ${esc(u.email)} with this temporary password:</p>
+                <div class="notice" style="font:700 18px monospace">${esc(pw)}</div>
+                <p class="small">Share this securely. Password reset is not available in this MVP.</p>
+                <button class="btn" id="done">Done</button>
+            </div>
+        </div>`;
+        $('#done').onclick = () => { $('#modal').innerHTML = ''; render(); };
+        return;
+    }
+
+    let bucket = { task: 'tasks', event: 'events', doc: 'docs' }[type],
+        x = item || { id: id(), space: me.space, by: me.id, created: now() };
+
+    if (item && !manager() && item.by !== me.id && (type !== 'task' || item.assignee !== me.id)) return $('#err').textContent = 'You do not have permission to edit this record.';
+
+    Object.assign(x, f, { updated: now() });
+
+    if (type === 'task') {
+        x.assignee = f.assignee || '';
+        x.status = f.status || 'pending';
+        log(item ? 'Updated task' : 'Created task', x.title);
+    }
+    if (type === 'event') log(item ? 'Updated schedule item' : 'Created schedule item', x.title);
+    if (type === 'doc') log(item ? 'Updated business record' : 'Saved business record', x.title);
+
+    if (!item) db[bucket].unshift(x);
+    save();
+    $('#modal').innerHTML = '';
+    render();
+    toast('Saved');
+}
