@@ -419,3 +419,34 @@ function assistant() {
         </aside>
     </div>`;
 }
+
+function proposal(a) {
+    return a ? `<div class="proposal"><strong>Draft ${esc(a.kind)}</strong>${esc(a.title)}<div class="small">${esc(a.summary)} · ${esc(a.state)}</div></div>` : '';
+}
+
+function review() {
+    let a = list('approvals').sort((x, y) => y.at.localeCompare(x.at));
+    return `${head('Review actions', 'Check every assistant proposal before it changes workspace data.')}
+    <section class="card">
+        ${a.length ? a.map(x => `<div class="row">
+            <div class="row-main">
+                <span class="badge ${x.state === 'pending' ? 'amber' : x.state === 'approved' ? 'green' : 'red'}">${esc(x.state)}</span> 
+                <span class="badge blue">${esc(x.kind)}</span>
+                <div class="row-title" style="margin-top:7px">${esc(x.title)}</div>
+                <div class="row-sub">${esc(x.summary)} · Asked by ${esc(uname(x.by))} · ${stamp(x.at)}</div>
+            </div>
+            ${x.state === 'pending' ? `<div class="row-actions"><button class="btn small" data-approve="${x.id}">Approve</button><button class="btn danger small" data-reject="${x.id}">Reject</button></div>` : ''}
+        </div>`).join('') : empty('No proposals to review', 'Assistant drafts will appear here.')}
+    </section>`;
+}
+
+function activity() {
+    let a = list('logs');
+    return `${head('Activity log', 'A shared history of important workspace changes.')}
+    <section class="card">
+        ${a.length ? a.map(x => `<div class="row">
+            <div><b>${esc(x.action)}</b><div class="row-sub">${esc(x.who)}${x.detail ? ' · ' + esc(x.detail) : ''}</div></div>
+            <span class="small">${stamp(x.at)}</span>
+        </div>`).join('') : empty('No activity recorded')}
+    </section>`;
+}
