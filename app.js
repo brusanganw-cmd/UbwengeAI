@@ -777,3 +777,43 @@ function exportCsv() {
     save();
     toast('CSV report downloaded');
 }
+
+function downloadDoc(key) {
+    let d = db.docs.find(x => x.id === key);
+    download(d.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.txt', `${d.title}\n${d.type} · ${stamp(d.updated)}\n\n${d.content}`);
+    log('Exported record', d.title);
+    save();
+}
+
+function backup() {
+    let data = {
+        workspace: ws(),
+        members: db.users.filter(x => x.space === me.space).map(({ pass, salt, ...u }) => u),
+        tasks: list('tasks'),
+        schedule: list('events'),
+        records: list('docs'),
+        approvals: list('approvals'),
+        activity: list('logs')
+    };
+    download('ubwengeai-backup.json', JSON.stringify(data, null, 2), 'application/json');
+    log('Downloaded workspace backup');
+    save();
+}
+
+function role(key) {
+    if (!manager()) return;
+    let u = db.users.find(x => x.id === key && x.space === me.space);
+    if (!u) return;
+    let next = u.role === 'employee' ? 'admin' : 'employee';
+    if (!confirm(`Change ${u.name}'s role to ${next}?`)) return;
+    u.role = next;
+    log('Changed role', u.name + ' → ' + next);
+    save();
+    render();
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') $('#modal').innerHTML = '';
+});
+
+start();
