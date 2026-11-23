@@ -653,3 +653,67 @@ textarea.field {
     display: block;
     margin-bottom: 5px;
 }
+
+.docgrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.doc {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+}
+
+.doc p {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: pre-wrap;
+    max-height: 88px;
+    overflow: hidden;
+}
+
+.pill {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 5px 9px;
+    color: #60736b;
+    font-size: 12px;
+}
+
+.modal-bg {
+    position: fixed;
+    inset: 0;
+    background: #15271f66;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    z-index: 10;
+}
+
+.modal-box {
+    background: white;
+    border-radius: 14px;
+    width: min(550px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: 0 25px 70px #173f3633;
+    padding: 22px;
+}
+
+.modal-head, .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-head {
+    margin-bottom: 17px;
+}
+
+.modal-actions {
+    justify-content: flex-end;
+    margin-top: 18px;
+}
