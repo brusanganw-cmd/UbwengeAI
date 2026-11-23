@@ -296,3 +296,44 @@ function home() {
         </section>
     </div>`;
 }
+
+function tasks() {
+    let a = list('tasks'),
+        query = q.toLowerCase();
+    if (query) a = a.filter(t => (t.title + ' ' + t.desc + ' ' + uname(t.assignee)).toLowerCase().includes(query));
+    if (status !== 'all') a = a.filter(t => t.status === status);
+    a.sort((x, y) => (x.due || '9999').localeCompare(y.due || '9999'));
+    return `${head('Tasks', 'Plan work, assign owners and keep actions visible.', '<button class="btn" data-modal="task">＋ New task</button>')}
+    <div class="toolbar">
+        <div class="search">
+            <input class="field" id="search" placeholder="Search tasks" value="${esc(q)}">
+        </div>
+        <select class="field" id="filter">
+            <option value="all">All statuses</option>
+            ${['pending', 'in progress', 'completed'].map(x => `<option ${status === x ? 'selected' : ''}>${x}</option>`).join('')}
+        </select>
+        <button class="btn secondary small" id="clear">Clear</button>
+    </div>
+    <div class="card table-wrap">
+        <table class="data">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Assigned to</th>
+                    <th>Due</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                ${a.length ? a.map(t => `<tr>
+                    <td><b>${esc(t.title)}</b><div class="small">${esc(t.desc || '')}</div>${t.remind ? `<div class="small">Reminder ${stamp(t.remind)}</div>` : ''}</td>
+                    <td>${esc(uname(t.assignee))}</td>
+                    <td>${date(t.due)}</td>
+                    <td><select class="status" data-status="${t.id}">${['pending', 'in progress', 'completed'].map(x => `<option ${t.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select></td>
+                    <td><button class="btn ghost small" data-edit-task="${t.id}">Edit</button></td>
+                </tr>`).join('') : `<tr><td colspan="5">${empty('No matching tasks')}</td></tr>`}
+            </tbody>
+        </table>
+    </div>`;
+}
