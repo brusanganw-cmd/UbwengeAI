@@ -532,3 +532,58 @@ textarea.field {
     padding: 12px 9px;
     border-bottom: 1px solid #edf0ed;
 }
+
+.status {
+    padding: 5px 7px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: white;
+    font-size: 12px;
+}
+
+.event-date {
+    width: 45px;
+    height: 46px;
+    background: #f0f5ef;
+    color: #35684f;
+    border-radius: 8px;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.event-date b {
+    font-size: 16px;
+}
+
+.event-date span {
+    font-size: 9px;
+    text-transform: uppercase;
+    font-weight: 750;
+}
+
+.notice {
+    background: #f0f5ef;
+    border-radius: 9px;
+    padding: 12px;
+    color: #526d60;
+    font-size: 13px;
+}
+
+.search {
+    position: relative;
+}
+
+.search:before {
+    content: '⌕';
+    position: absolute;
+    left: 10px;
+    top: 6px;
+    font-size: 20px;
+    color: #8a9a91;
+}
+
+.search input {
+    padding-left: 31px;
+}
