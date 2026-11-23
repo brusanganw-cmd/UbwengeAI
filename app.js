@@ -617,3 +617,143 @@ async function saveForm(e, type, item) {
     render();
     toast('Saved');
 }
+
+function remove(bucket, key) {
+    let x = db[bucket].find(r => r.id === key && r.space === me.space);
+    if (!x) return;
+    if (!manager() && x.by !== me.id) {
+        toast('You do not have permission to delete this record.', true);
+        return;
+    }
+    if (!confirm(`Delete “${x.title}”?`)) return;
+    db[bucket] = db[bucket].filter(r => r.id !== key);
+    log('Deleted ' + (bucket === 'events' ? 'schedule item' : 'business record'), x.title);
+    save();
+    render();
+}
+
+function decide(key, yes) {
+    if (!manager()) {
+        toast('Only an owner or administrator can approve proposals.', true);
+        return;
+    }
+    let a = db.approvals.find(x => x.id === key && x.space === me.space && x.state === 'pending');
+    if (!a) return;
+
+    if (yes) {
+        if (a.kind === 'task') db.tasks.unshift({
+            id: id(),
+            space: me.space,
+            by: me.id,
+            title: a.data.title,
+            desc: a.data.desc || '',
+            assignee: '',
+            due: a.data.due || '',
+            remind: '',
+            status: 'pending',
+            created: now(),
+            updated: now()
+        });
+        else db.events.unshift({
+            id: id(),
+            space: me.space,
+            by: me.id,
+            title: a.data.title,
+            desc: a.data.desc || '',
+            when: a.data.when,
+            place: ''
+        });
+        a.state = 'approved';
+        log('Approved assistant proposal', a.title);
+        toast('Approved and saved');
+    } else {
+        a.state = 'rejected';
+        log('Rejected assistant proposal', a.title);
+        toast('Proposal rejected');
+    }
+    a.decided = now();
+    save();
+    app();
+}
+
+function due(text) {
+    let d = new Date(),
+        t = text.toLowerCase();
+    if (t.includes('tomorrow')) d.setDate(d.getDate() + 1);
+    else for (let [day, n] of Object.entries({ sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 }))
+        if (t.includes(day)) {
+            d.setDate(d.getDate() + ((n - d.getDay() + 7) % 7 || 7));
+            break;
+        }
+    return d.toISOString().slice(0, 10);
+}
+
+function answer(text) {
+    let t = text.trim(),
+        l = t.toLowerCase(),
+        tasks = list('tasks'),
+        events = list('events'),
+        docs = list('docs');
+
+    if (/\b(create|add|make|remind me to)\b/.test(l) && /\b(task|todo|to-do|reminder|follow up|call|prepare|send|review)\b/.test(l)) {
+        let title = t.replace(/^(please\s+)?(create|add|make)\s+(a\s+)?(task|todo|to-do)\s*(to\s*)?/i, '').replace(/^remind me to\s*/i, '').trim();
+        if (!title || title === t) title = t.replace(/^(please\s+)?(create|add|make)\s+/i, '');
+        let d = /\b(today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(t) ? due(t) : '';
+        return draft('task', title, `Create a pending task${d ? ' due ' + date(d) : ''}.`, { title, desc: `Suggested from: ${t}`, due: d });
+    }
+    
+    if (/\b(schedule|book|plan)\b/.test(l) && /\b(meeting|event|call|check-in|check in|appointment|session)\b/.test(l)) {
+        let title = t.replace(/^(please\s+)?(schedule|book|plan)\s+(a\s+)?/i, '').trim(),
+            d = new Date();
+        if (l.includes('tomorrow')) d.setDate(d.getDate() + 1);
+        let m = l.match(/\b(\d{1,2})(?::(\d\d))?\s*(am|pm)\b/i);
+        d.setHours(m ? (Number(m[1]) % 12 + (m[3].toLowerCase() === 'pm' ? 12 : 0)) : 10, m ? Number(m[2] || 0) : 0, 0, 0);
+        let when = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        return draft('schedule', title, `Add a schedule item for ${stamp(when)}.`, { title, when, desc: `Suggested from: ${t}` });
+    }
+    
+    if (/\b(overdue|late)\b/.test(l) && /task/.test(l)) {
+        let a = tasks.filter(x => x.status !== 'completed' && x.due && x.due < new Date().toISOString().slice(0, 10));
+        return { text: a.length ? `${a.length} overdue: ` + a.map(x => `${x.title} (${date(x.due)})`).join('; ') : 'There are no overdue tasks.' };
+    }
+    
+    if (/task|todo|to-do/.test(l)) {
+        let a = tasks.filter(x => x.status !== 'completed');
+        return { text: `You have ${a.length} open task${a.length === 1 ? '' : 's'}${a.length ? ': ' + a.slice(0, 5).map(x => x.title + (x.due ? ' (due ' + date(x.due) + ')' : '')).join('; ') : '.'}` };
+    }
+    
+    if (/schedule|calendar|event|meeting/.test(l)) return { text: `${events.length} schedule item${events.length === 1 ? '' : 's'} saved${events.length ? ': ' + events.slice(0, 4).map(x => x.title + ' (' + stamp(x.when) + ')').join('; ') : '.'}` };
+
+    if (/record|document|note|report|information/.test(l)) return { text: `${docs.length} business record${docs.length === 1 ? '' : 's'} saved. Open Business records to search or export them.` };
+
+    return { text: 'I can summarize your tasks, schedule or saved records, and draft a task or meeting for review. Try “What tasks are overdue?”' };
+}
+
+function draft(kind, title, summary, data) {
+    let a = {
+        id: id(),
+        space: me.space,
+        by: me.id,
+        kind,
+        title,
+        summary,
+        data,
+        state: 'pending',
+        at: now()
+    };
+    db.approvals.unshift(a);
+    return { text: `I drafted a ${kind} for your review. It will not be saved until someone approves it.`, proposal: a.id };
+}
+
+function chat(e) {
+    e.preventDefault();
+    let text = $('#prompt').value.trim(),
+        out = answer(text),
+        at = now();
+
+    db.chats.push({ id: id(), user: me.id, role: 'user', text, at }, { id: id(), user: me.id, role: 'assistant', text: out.text, proposal: out.proposal || '', at: now() });
+    log('Asked assistant', text.slice(0, 90));
+    save();
+    render();
+    $('#messages').scrollTop = $('#messages').scrollHeight;
+}
