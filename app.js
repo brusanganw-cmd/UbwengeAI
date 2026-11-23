@@ -519,3 +519,44 @@ function bind() {
     $('#backup')?.addEventListener('click', backup);
     $('#chat')?.addEventListener('submit', chat);
 }
+
+function modal(type, key = '') {
+    let item = key ? db[{ task: 'tasks', event: 'events', doc: 'docs' }[type]].find(x => x.id === key) : null,
+        users = db.users.filter(u => u.space === me.space);
+    let title = { task: item ? 'Edit task' : 'New task', event: item ? 'Edit event' : 'Add event', doc: item ? 'Edit record' : 'New record', member: 'Add team member' }[type],
+        body = '';
+
+    if (type === 'task') body = `<div class="form-row"><label>Task</label><input class="field" name="title" required value="${esc(item?.title || '')}"></div>
+    <div class="form-row"><label>Description</label><textarea class="field" name="desc">${esc(item?.desc || '')}</textarea></div>
+    <div class="form-row"><label>Assigned to</label><select class="field" name="assignee"><option value="">Unassigned</option>${users.map(u => `<option value="${u.id}" ${item?.assignee === u.id ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Status</label><select class="field" name="status">${['pending', 'in progress', 'completed'].map(x => `<option ${item?.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Due date</label><input class="field" type="date" name="due" value="${esc(item?.due || '')}"></div>
+    <div class="form-row"><label>Reminder date and time</label><input class="field" type="datetime-local" name="remind" value="${esc(item?.remind || '')}"></div>`;
+
+    if (type === 'event') body = `<div class="form-row"><label>Activity</label><input class="field" name="title" required value="${esc(item?.title || '')}"></div>
+    <div class="form-row"><label>Details</label><textarea class="field" name="desc">${esc(item?.desc || '')}</textarea></div>
+    <div class="form-row"><label>Date and time</label><input class="field" name="when" type="datetime-local" required value="${esc(item?.when || '')}"></div>
+    <div class="form-row"><label>Location</label><input class="field" name="place" value="${esc(item?.place || '')}"></div>`;
+
+    if (type === 'doc') body = `<div class="form-row"><label>Title</label><input class="field" name="title" required value="${esc(item?.title || '')}"></div>
+    <div class="form-row"><label>Type</label><select class="field" name="type">${['Note', 'Report', 'Procedure'].map(x => `<option ${item?.type === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+    <div class="form-row"><label>Content</label><textarea class="field" style="min-height:150px" name="content" required>${esc(item?.content || '')}</textarea></div>`;
+
+    if (type === 'member') body = `<div class="form-row"><label>Name</label><input class="field" name="name" required></div>
+    <div class="form-row"><label>Email</label><input class="field" type="email" name="email" required></div>
+    <div class="form-row"><label>Role</label><select class="field" name="role"><option value="employee">Employee</option><option value="admin">Administrator</option></select></div>
+    <div class="notice">A temporary password is generated and shown once.</div>`;
+
+    $('#modal').innerHTML = `<div class="modal-bg" id="bg">
+        <form class="modal-box" id="form">
+            <div class="modal-head"><h2>${title}</h2><button class="close" type="button" id="x">×</button></div>
+            ${body}
+            <div class="footnote" id="err"></div>
+            <div class="modal-actions"><button type="button" class="btn secondary" id="cancel">Cancel</button><button class="btn">${type === 'member' ? 'Create member' : 'Save'}</button></div>
+        </form>
+    </div>`;
+
+    $('#x').onclick = $('#cancel').onclick = () => $('#modal').innerHTML = '';
+    $('#bg').onclick = e => { if (e.target.id === 'bg') $('#modal').innerHTML = ''; };
+    $('#form').onsubmit = e => saveForm(e, type, item);
+}
