@@ -146,3 +146,113 @@ textarea.field {
     min-height: 100px;
     resize: vertical;
 }
+
+.form-row {
+    margin: 15px 0;
+}
+
+.form-row label {
+    display: block;
+    font-size: 13px;
+    font-weight: 650;
+    margin-bottom: 6px;
+}
+
+.btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: var(--green);
+    color: white;
+    font-weight: 650;
+}
+
+.btn:hover {
+    filter: brightness(.94);
+}
+
+.btn.secondary {
+    background: #edf2ee;
+    color: #35574b;
+}
+
+.btn.ghost {
+    background: transparent;
+    color: var(--green);
+    padding: 7px;
+}
+
+.btn.danger {
+    background: #faecea;
+    color: #a33f36;
+}
+
+.btn.small {
+    padding: 6px 9px;
+    font-size: 12px;
+}
+
+.full {
+    width: 100%;
+}
+
+.link {
+    border: 0;
+    background: none;
+    color: var(--green);
+    font-weight: 700;
+}
+
+.switch {
+    margin-top: 18px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.note {
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f1f5f1;
+    color: #66796f;
+    font-size: 12px;
+}
+
+.topbar {
+    height: 66px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 27px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.topbar .mark {
+    width: 31px;
+    height: 31px;
+}
+
+.top-left, .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.workspace {
+    border-left: 1px solid var(--line);
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.user-chip {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+}
