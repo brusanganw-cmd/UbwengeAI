@@ -173,3 +173,126 @@ function nav(id, label, icon, n = '') {
         <span>${icon}</span>${label}${n ? `<b class="count">${n}</b>` : ''}
     </button>`;
 }
+
+function app() {
+    let pending = list('approvals').filter(x => x.state === 'pending').length;
+    $('#root').innerHTML = `<header class="topbar">
+        <div class="top-left">
+            <div class="brand"><i class="mark">U</i><span>UbwengeAI</span></div>
+            <div class="workspace">${esc(ws().name)}</div>
+        </div>
+        <div class="top-actions">
+            <div class="user-chip">
+                <i class="avatar">${esc(me.name[0].toUpperCase())}</i>
+                <span class="user-name">${esc(me.name)} · ${esc(me.role)}</span>
+            </div>
+            <button class="top-link" id="logout">Sign out</button>
+        </div>
+    </header>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="nav-label">Workspace</div>
+            ${nav('home', 'Overview', '⌂')}
+            ${nav('tasks', 'Tasks', '☷')}
+            ${nav('schedule', 'Schedule', '▦')}
+            ${nav('records', 'Business records', '▤')}
+            ${nav('assistant', 'AI assistant', '✳')}
+            ${nav('review', 'Review actions', '✓', pending || '')}
+            ${nav('activity', 'Activity log', '◷')}
+            ${manager() ? nav('team', 'Team & settings', '⚙') : ''}
+            <div class="side-note"><b>Human in control</b><br>Assistant proposals wait for your approval.</div>
+        </aside>
+        <main class="main" id="main"></main>
+    </div>`;
+    document.querySelectorAll('[data-page]').forEach(b => b.onclick = () => {
+        page = b.dataset.page;
+        app();
+    });
+    $('#logout').onclick = () => {
+        log('Signed out');
+        localStorage.removeItem(session);
+        me = null;
+        auth();
+    };
+    render();
+}
+
+function head(title, desc, actions = '') {
+    return `<div class="head">
+        <div><h1>${title}</h1><p>${desc}</p></div>
+        <div class="actions">${actions}</div>
+    </div>`;
+}
+
+function empty(title = 'Nothing here yet', msg = 'Add your first item to get started.') {
+    return `<div class="empty"><strong>${title}</strong>${msg}</div>`;
+}
+
+function home() {
+    let ts = list('tasks'),
+        open = ts.filter(t => t.status !== 'completed'),
+        today = new Date().toISOString().slice(0, 10),
+        ev = list('events').filter(e => e.when >= now()).sort((a, b) => a.when.localeCompare(b.when)).slice(0, 5),
+        logs = list('logs').slice(0, 4),
+        pending = list('approvals').filter(a => a.state === 'pending').length;
+
+    return `${head(`Good ${new Date().getHours() < 12 ? 'morning' : 'day'}, ${esc(me.name.split(' ')[0])}`, `Here is what is moving in ${esc(ws().name)} today.`, `<button class="btn secondary" data-go="assistant">Ask assistant</button><button class="btn" data-modal="task">＋ New task</button>`)}
+    <div class="grid kpis">
+        ${[['Open tasks', open.length, 'Across the workspace'],
+        ['Due today', open.filter(t => t.due === today).length, 'Keep these in view'],
+        ['Upcoming events', ev.length, 'Scheduled activities'],
+        ['Business records', list('docs').length, 'Notes and reports']].map(x => `<div class="card">
+            <div class="k-label">${x[0]}</div>
+            <div class="k-value">${x[1]}</div>
+            <div class="k-foot">${x[2]}</div>
+        </div>`).join('')}
+    </div>
+    <div class="grid two">
+        <section class="card">
+            <div class="card-head">
+                <h2>Tasks in progress</h2>
+                <button class="btn ghost small" data-go="tasks">View all →</button>
+            </div>
+            ${open.length ? open.slice(0, 5).map(t => `<div class="row">
+                <div class="row-main">
+                    <div class="row-title">${esc(t.title)}</div>
+                    <div class="row-sub">${t.due ? `Due ${date(t.due)}` : 'No due date'} · ${esc(uname(t.assignee))}</div>
+                </div>
+                <span class="badge ${t.status === 'pending' ? 'amber' : 'blue'}">${esc(t.status)}</span>
+            </div>`).join('') : empty()}
+        </section>
+        <section class="card">
+            <div class="card-head">
+                <h2>Upcoming schedule</h2>
+                <button class="btn ghost small" data-go="schedule">View →</button>
+            </div>
+            ${ev.length ? ev.map(e => `<div class="row">
+                <div class="event-date"><b>${new Date(e.when).getDate()}</b><span>${new Date(e.when).toLocaleDateString(undefined, { month: 'short' })}</span></div>
+                <div class="row-main">
+                    <div class="row-title">${esc(e.title)}</div>
+                    <div class="row-sub">${stamp(e.when)}${e.place ? ' · ' + esc(e.place) : ''}</div>
+                </div>
+            </div>`).join('') : empty('Your calendar is clear')}
+        </section>
+        <section class="card">
+            <div class="card-head">
+                <h2>Recent activity</h2>
+                <button class="btn ghost small" data-go="activity">Open log →</button>
+            </div>
+            ${logs.length ? logs.map(x => `<div class="row">
+                <div><b>${esc(x.action)}</b>
+                    <div class="row-sub">${esc(x.who)}${x.detail ? ' · ' + esc(x.detail) : ''}</div>
+                </div>
+                <span class="small">${stamp(x.at)}</span>
+            </div>`).join('') : empty('No activity yet')}
+        </section>
+        <section class="card">
+            <div class="card-head">
+                <h2>Review queue</h2>
+                <span class="badge amber">${pending} pending</span>
+            </div>
+            <p class="muted">Assistant suggestions only save after approval.</p>
+            <button class="btn secondary" data-go="review">Review actions</button>
+        </section>
+    </div>`;
+}
