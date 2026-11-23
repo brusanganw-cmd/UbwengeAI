@@ -757,3 +757,11 @@ function chat(e) {
     render();
     $('#messages').scrollTop = $('#messages').scrollHeight;
 }
+
+function download(name, data, type = 'text/plain') {
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], { type }));
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
