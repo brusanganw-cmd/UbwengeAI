@@ -393,3 +393,29 @@ function records() {
     </article>`).join('')}</div>` : `<div class="card">${empty('No records saved', 'Create notes, reports or procedures here.')}</div>`}
     <p class="footnote">Task data exports as CSV. Saved records download as text files.</p>`;
 }
+
+function assistant() {
+    let chats = db.chats.filter(c => c.user === me.id).sort((a, b) => a.at.localeCompare(b.at)),
+        pending = list('approvals').filter(a => a.state === 'pending');
+    return `${head('AI assistant', 'Ask plainly. Review every proposed change before it is saved.')}
+    <div class="assistant">
+        <section class="card chatbox">
+            <div class="messages" id="messages">
+                ${chats.length ? chats.map(c => `<div class="bubble ${c.role === 'user' ? 'user' : ''}">${esc(c.text)}<div class="stamp">${stamp(c.at)}</div></div>${c.proposal ? proposal(db.approvals.find(a => a.id === c.proposal)) : ''}`).join('') : `<div class="notice"><b>Try asking:</b><br>“Create a task to call the supplier Friday”<br>“What tasks are overdue?”<br>“Schedule a team check-in tomorrow at 10am”</div>`}
+            </div>
+            <form class="compose" id="chat">
+                <input class="field" id="prompt" placeholder="Ask or suggest an action…" required>
+                <button class="btn">Send</button>
+            </form>
+        </section>
+        <aside class="card">
+            <div class="card-head"><h2>Human review</h2><span class="badge green">Required</span></div>
+            <p class="muted">This MVP understands common task and schedule requests, and can answer basic questions from workspace records.</p>
+            <div class="notice">Draft actions stay out of your workspace until approved.</div>
+            <hr>
+            <div class="card-head"><h2>Waiting for review</h2><span class="badge amber">${pending.length}</span></div>
+            ${pending.slice(0, 3).map(a => `<div class="proposal"><strong>${esc(a.title)}</strong><div class="small">${esc(a.summary)}</div></div>`).join('') || '<div class="small">Nothing waiting.</div>'}
+            <p class="footnote">Rules-based demo assistant; no external AI service is called.</p>
+        </aside>
+    </div>`;
+}
