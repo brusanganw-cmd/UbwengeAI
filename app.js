@@ -473,3 +473,49 @@ function team() {
         </section>
     </div>`;
 }
+
+function bind() {
+    document.querySelectorAll('[data-modal]').forEach(b => b.onclick = () => modal(b.dataset.modal));
+    document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => {
+        page = b.dataset.go;
+        app();
+    });
+    document.querySelectorAll('[data-edit-task]').forEach(b => b.onclick = () => modal('task', b.dataset.editTask));
+    document.querySelectorAll('[data-edit-event]').forEach(b => b.onclick = () => modal('event', b.dataset.editEvent));
+    document.querySelectorAll('[data-edit-doc]').forEach(b => b.onclick = () => modal('doc', b.dataset.editDoc));
+    document.querySelectorAll('[data-status]').forEach(b => b.onchange = () => {
+        let t = db.tasks.find(x => x.id === b.dataset.status);
+        if (t && (manager() || t.by === me.id || t.assignee === me.id)) {
+            t.status = b.value;
+            log('Updated task status', t.title + ' → ' + t.status);
+            save();
+            render();
+        } else toast('You do not have permission to update this task.', true);
+    });
+    document.querySelectorAll('[data-delete-event]').forEach(b => b.onclick = () => remove('events', b.dataset.deleteEvent));
+    document.querySelectorAll('[data-delete-doc]').forEach(b => b.onclick = () => remove('docs', b.dataset.deleteDoc));
+    document.querySelectorAll('[data-download-doc]').forEach(b => b.onclick = () => downloadDoc(b.dataset.downloadDoc));
+    document.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => decide(b.dataset.approve, true));
+    document.querySelectorAll('[data-reject]').forEach(b => b.onclick = () => decide(b.dataset.reject, false));
+    document.querySelectorAll('[data-role]').forEach(b => b.onclick = () => role(b.dataset.role));
+    let s = $('#search');
+    if (s) s.oninput = () => {
+        q = s.value;
+        let pos = s.selectionStart;
+        render();
+        $('#search')?.focus();
+        $('#search')?.setSelectionRange(pos, pos);
+    };
+    if ($('#filter')) $('#filter').onchange = () => {
+        status = $('#filter').value;
+        render();
+    };
+    if ($('#clear')) $('#clear').onclick = () => {
+        q = '';
+        status = 'all';
+        render();
+    };
+    $('#csv')?.addEventListener('click', exportCsv);
+    $('#backup')?.addEventListener('click', backup);
+    $('#chat')?.addEventListener('submit', chat);
+}
