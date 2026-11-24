@@ -4,7 +4,7 @@ A local-first, responsive MVP for the SME administrative assistant in the suppli
 
 ## Run
 
-Open `index.html` in an up-to-date Chrome or Edge browser. There is no build step, install, server, or network requirement. Create the first account to set up a workspace owner. The owner can add employee or administrator accounts under **Team & settings**.
+Open Google Chrome or any supported browser and type in "ubwengeai.vercel.app" to access the website. There is no build step, install, server, or network requirement. Create the first account to set up a workspace owner. The owner can add employee or administrator accounts under **Team & settings**.
 
 ## Included
 
